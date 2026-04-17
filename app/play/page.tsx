@@ -4,16 +4,22 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Case, GuessRecord } from '@/types'
 import casesData from '@/data/cases.json'
-import { formatINR, parseLakhCrore } from '@/lib/currencyUtils'
+import { useGame } from '@/lib/GameContext'
+import { useAudio } from '@/lib/AudioProvider'
+
+import { ProgressBar } from './components/ProgressBar'
+import { CaseCard } from './components/CaseCard'
+import { GuessingPhase } from './components/GuessingPhase'
+import { RevealPhase } from './components/RevealPhase'
+import { EmptyChair } from './components/EmptyChair'
 
 export default function PlayPage() {
   const router = useRouter()
+  const { addGuess, guesses } = useGame()
+  const { setTension } = useAudio()
   
   const [currentIndex, setCurrentIndex] = useState(0)
   const [gamePhase, setGamePhase] = useState<'guessing' | 'revealed'>('guessing')
-  const [inputValue, setInputValue] = useState('')
-  const [inputUnit, setInputUnit] = useState<'lakh' | 'crore'>('lakh')
-  const [guesses, setGuesses] = useState<GuessRecord[]>([])
   const [initialized, setInitialized] = useState(false)
   
   const shuffledCasesRef = useRef<Case[]>([])
@@ -28,39 +34,64 @@ export default function PlayPage() {
       return shuffled
     }
 
-    shuffledCasesRef.current = shuffle(casesData as Case[])
+    // Filter out cases the user has already guessed
+    const unseenCases = (casesData as Case[]).filter(
+      c => !guesses.some(g => g.caseId === c.id)
+    )
+
+    if (unseenCases.length === 0) {
+      // If they somehow exhausted all cases, route them directly to results
+      router.push('/result')
+      return;
+    }
+
+    shuffledCasesRef.current = shuffle(unseenCases).slice(0, 5)
     setInitialized(true)
-  }, [])
+    // reset tension on new round
+    setTension(0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) 
 
   if (!initialized || !shuffledCasesRef.current.length) {
-    return <div className="min-h-screen bg-black" />
+    return (
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+        <div className="w-12 h-1 bg-parchment animate-pulse"></div>
+      </div>
+    )
+  }
+
+  const totalCases = shuffledCasesRef.current.length
+
+  // Meta Mode triggered
+  if (currentIndex === totalCases) {
+    return (
+      <main className="min-h-screen px-4 md:px-8 pt-8 flex flex-col items-center justify-center bg-[#050505]">
+        <div className="w-full max-w-2xl animate-reveal flex flex-col">
+          <EmptyChair onComplete={() => router.push('/result')} />
+        </div>
+      </main>
+    )
   }
 
   const currentCase = shuffledCasesRef.current[currentIndex]
-  const totalCases = shuffledCasesRef.current.length
 
-  const availableSections = currentCase ? [
-    { label: 'Occupation', value: currentCase.occupation },
-    { label: 'Age', value: currentCase.age },
-    { label: 'Gender', value: currentCase.gender },
-    { label: 'Family Status', value: currentCase.familySituation },
-  ].filter(section => {
-    if (section.value === null || section.value === undefined) return false;
-    const s = section.value.toString().toLowerCase();
-    return !s.includes('not recorded') && s !== 'unknown' && s !== 'not applicable';
-  }) : [];
-
-  if (!currentCase) {
-    return <div className="min-h-screen bg-black" />
-  }
-
-  const handleLockIn = () => {
-    if (!inputValue || inputValue === '0' || inputValue === '00') return
-
-    const guessedAmount = parseLakhCrore(inputValue, inputUnit)
+  const handleLockIn = (guessedAmount: number) => {
     const ratio = currentCase.actualPayoutINR === 0 
       ? null 
       : guessedAmount / currentCase.actualPayoutINR
+
+    // Update tension based on miss amount.
+    // If ratio is 1, they are perfectly accurate. If ratio is 10, they guessed 10x too much.
+    if (ratio !== null) {
+      let margin = Math.abs(1 - ratio)
+      if (ratio > 1) { margin = ratio - 1 } else { margin = (1/ratio) - 1 }
+      // Max tension reached when they are off by factor of 5+
+      const tensionLevel = Math.min(1.0, margin / 5.0)
+      setTension(tensionLevel)
+    } else {
+      // It was a zero payout case, automatic high tension unless they guessed 0
+      setTension(guessedAmount === 0 ? 0 : 0.8)
+    }
 
     const newGuess: GuessRecord = {
       caseId: currentCase.id,
@@ -73,181 +104,39 @@ export default function PlayPage() {
       gender: currentCase.gender
     }
 
-    setGuesses(prev => [...prev, newGuess])
+    addGuess(newGuess)
     setGamePhase('revealed')
   }
 
   const handleNext = () => {
-    if (currentIndex < totalCases - 1) {
-      setCurrentIndex(prev => prev + 1)
-      setInputValue('')
-      setGamePhase('guessing')
-    } else {
-      const finalGuesses = [...guesses]
-      sessionStorage.setItem('guesses', JSON.stringify(finalGuesses))
-      router.push('/result')
-    }
-  }
-
-  const latestGuess = guesses[guesses.length - 1]
-
-  const getGuessColor = () => {
-    if (currentCase.actualPayoutINR === 0) return 'text-white'
-    if (latestGuess.guessedAmount < latestGuess.actualAmount) return 'text-blue-400'
-    if (latestGuess.guessedAmount > latestGuess.actualAmount) return 'text-red-400'
-    return 'text-white'
+    setCurrentIndex(prev => prev + 1)
+    setGamePhase('guessing')
   }
 
   return (
-    <main className="min-h-screen bg-black text-white px-6 py-12 flex flex-col items-center">
-      <div className="w-full max-w-lg animate-reveal">
-        {/* Progress Header */}
-        <div className="flex justify-between items-center mb-12 border-b border-white/10 pb-4">
-          <div className="text-[10px] text-gray-400 tracking-[0.2em] uppercase font-light">
-            Evidence File / 0{currentIndex + 1}
+    <main className="min-h-screen px-4 md:px-8 pt-8 md:pt-16 pb-12 flex flex-col items-center justify-start">
+      <div className="w-full max-w-5xl animate-reveal flex flex-col">
+        <ProgressBar currentIndex={currentIndex} totalCases={totalCases} />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start w-full">
+          {/* Left Panel: The Case Dossier */}
+          <div className="w-full">
+            <CaseCard currentCase={currentCase} />
           </div>
-          <div className="text-[10px] text-gray-500 uppercase tracking-widest font-light">
-            0{currentIndex + 1} — 0{totalCases}
-          </div>
-        </div>
 
-        {/* Case Info Card */}
-        <div className="glass-card rounded-xl p-8 md:p-10 relative overflow-hidden group hover:border-white/20 transition-all duration-700">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-[40px] rounded-full group-hover:bg-white/10 transition-colors duration-700"></div>
-          
-          <div className="space-y-10 relative z-10">
-            <div>
-              <p className="text-[10px] text-gray-500 uppercase tracking-[0.2em] mb-4">
-                {currentCase.country}{currentCase.year ? ` / ${currentCase.year}` : ''}
-              </p>
-              <h2 className="text-2xl md:text-3xl text-white font-serif italic leading-snug">
-                {currentCase.causeOfDeath}
-              </h2>
-              {currentCase.caseName && (
-                <p className="text-xs md:text-sm text-gray-400 mt-3 font-light tracking-wide uppercase">
-                  {currentCase.caseName}
-                </p>
-              )}
-            </div>
-
-            {availableSections.length > 0 && (
-              <div className={`grid ${availableSections.length > 1 ? 'grid-cols-2' : 'grid-cols-1'} gap-y-6 gap-x-4 border-t border-white/5 pt-8`}>
-                {availableSections.map((section) => (
-                  <div key={section.label} className="space-y-1">
-                    <p className="text-[9px] text-gray-500 uppercase tracking-widest">{section.label}</p>
-                    <p className="text-sm text-gray-300 font-light">{section.value}</p>
-                  </div>
-                ))}
-              </div>
+          {/* Right Panel: Official Appraisal Form */}
+          <div className="w-full lg:sticky lg:top-12">
+            {gamePhase === 'guessing' ? (
+              <GuessingPhase onLockIn={handleLockIn} />
+            ) : (
+              <RevealPhase 
+                currentCase={currentCase} 
+                latestGuess={guesses[guesses.length - 1]} 
+                onNext={handleNext}
+                isLast={currentIndex === totalCases - 1} 
+              />
             )}
           </div>
-        </div>
-
-        {/* Action Zone */}
-        <div className="mt-12 space-y-8">
-          {gamePhase === 'guessing' ? (
-            <div className="space-y-8 animate-reveal" style={{ animationDelay: '0.2s' }}>
-              <div>
-                <p className="text-[10px] text-gray-500 uppercase tracking-[0.3em] text-center mb-6">
-                  Estimate the value
-                </p>
-                
-                <div className="flex p-1 bg-white/5 border border-white/10 rounded-lg mb-6 max-w-xs mx-auto">
-                  <button
-                    onClick={() => setInputUnit('lakh')}
-                    className={`h-10 flex-1 text-[10px] tracking-widest transition-all rounded-md ${
-                      inputUnit === 'lakh' ? 'bg-white text-black font-semibold' : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    LAKHS
-                  </button>
-                  <button
-                    onClick={() => setInputUnit('crore')}
-                    className={`h-10 flex-1 text-[10px] tracking-widest transition-all rounded-md ${
-                      inputUnit === 'crore' ? 'bg-white text-black font-semibold' : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    CRORES
-                  </button>
-                </div>
-
-                <div className="relative group">
-                  <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl text-gray-600 font-light">₹</span>
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={inputValue}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (/^\d*\.?\d*$/.test(val)) {
-                        setInputValue(val);
-                      }
-                    }}
-                    placeholder="0.00"
-                    className="bg-transparent text-white text-5xl md:text-6xl text-center w-full py-8 border-b-2 border-white/10 outline-none focus:border-white transition-all font-light tracking-tight placeholder:text-white/5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  />
-                </div>
-              </div>
-
-              <button
-                onClick={handleLockIn}
-                disabled={!inputValue || inputValue === '0' || inputValue === '00'}
-                className={`w-full py-6 bg-white text-black text-sm uppercase tracking-[0.4em] font-semibold transition-all duration-500 ${
-                  (!inputValue || inputValue === '0' || inputValue === '00') 
-                    ? 'opacity-20 cursor-not-allowed' 
-                    : 'opacity-100 hover:bg-gray-200 hover:tracking-[0.5em]'
-                }`}
-              >
-                Declare Verdict
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-10 animate-reveal">
-              <div className="flex justify-around items-center border-b border-white/10 pb-10">
-                <div className="text-center">
-                  <p className="text-[9px] text-gray-500 uppercase tracking-widest mb-2">Estimation</p>
-                  <p className={getGuessColor() + " text-3xl md:text-4xl font-light tracking-tight"}>
-                    {formatINR(latestGuess.guessedAmount)}
-                  </p>
-                </div>
-                <div className="w-px h-12 bg-white/10"></div>
-                <div className="text-center">
-                  <p className="text-[9px] text-gray-500 uppercase tracking-widest mb-2">Verdict</p>
-                  <p className="text-3xl md:text-4xl font-light tracking-tight text-white">
-                    {currentCase.actualPayoutINR === 0 
-                      ? "₹0" 
-                      : formatINR(currentCase.actualPayoutINR)}
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <div className="relative">
-                  <div className="absolute left-0 top-0 w-1 h-full bg-white/20"></div>
-                  <p className="pl-6 text-sm text-gray-400 italic leading-relaxed font-serif uppercase tracking-tight">
-                    &quot;{currentCase.methodologyNote}&quot;
-                  </p>
-                </div>
-                {currentCase.sourceURL && (
-                  <a 
-                    href={currentCase.sourceURL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block text-[10px] text-gray-600 uppercase tracking-widest hover:text-white transition-colors"
-                  >
-                    View Judicial Record →
-                  </a>
-                )}
-              </div>
-
-              <button
-                onClick={handleNext}
-                className="w-full py-6 border border-white/20 text-white text-sm uppercase tracking-[0.4em] transition-all duration-500 hover:bg-white hover:text-black hover:tracking-[0.5em]"
-              >
-                {currentIndex < totalCases - 1 ? 'Next Analysis' : 'Final Evaluation'}
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </main>

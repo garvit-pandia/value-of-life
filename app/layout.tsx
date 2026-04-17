@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Outfit } from "next/font/google";
+import { Playfair_Display, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { GameProvider } from "@/lib/GameContext";
+import { AudioProvider } from "@/lib/AudioProvider";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-playfair",
 });
 
-const outfit = Outfit({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
-  variable: "--font-outfit",
+  variable: "--font-mono",
 });
 
 export const metadata: Metadata = {
@@ -23,12 +25,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="bg-black text-white">
+    <html lang="en" className="bg-[#050505] text-parchment">
       <body
-        className={`${playfair.variable} ${outfit.variable} font-sans antialiased bg-black text-white relative overflow-x-hidden`}
+        className={`${playfair.variable} ${jetbrainsMono.variable} font-sans antialiased bg-[#050505] text-parchment relative overflow-x-hidden selection:bg-parchment selection:text-black`}
       >
-        <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.03] noise-bg"></div>
-        {children}
+        <AudioProvider>
+          <GameProvider>
+            {/* CRT / Document Noise Overlay */}
+            <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.06] noise-bg mix-blend-overlay"></div>
+            {children}
+          </GameProvider>
+        </AudioProvider>
       </body>
     </html>
   );

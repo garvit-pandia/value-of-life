@@ -11,10 +11,13 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        parchment: "#e8e4d9",
+        "stamp-red": "#d32f2f",
       },
       fontFamily: {
         serif: ["var(--font-playfair)", "serif"],
-        sans: ["var(--font-outfit)", "sans-serif"],
+        sans: ["sans-serif"],
+        mono: ["var(--font-mono)", "monospace"],
       },
     },
   },

@@ -36,10 +36,6 @@
 - Zero context switching required from the user
 - Go fix failing CI tests without being told how
 
-- `.env` - Environment variables and API keys
-
-- `credentials.json`, `token.json` - Google OAuth credentials (required files, in `.gitignore`)
-
 ## Task Management
 
 1. **Plan First**: Write plan to `tasks/todo.md` with checkable items
@@ -54,4 +50,3 @@
 - **Simplicity First**: Make every change as simple as possible. Impact minimal code.
 - **No Laziness**: Find root causes. No temporary fixes. Senior developer standards.
 - **Minimal Impact**: Changes should only touch what's necessary. Avoid introducing bugs.
-- **Use Antigravity Chrome Extension Agent**: Use this whenever a frontend change is suggested or whenever it is needed.

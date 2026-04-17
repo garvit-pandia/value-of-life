@@ -59,6 +59,19 @@
     - [x] Ensure no debug logs or sensitive data in files <!-- id: 47 -->
     - [x] Confirm `README.md` is descriptive and accurate <!-- id: 48 -->
 
+# Task: Improvements & Refactoring (v2)
+
+## Improvement Todo
+- [x] Create `lib/GameContext.tsx` to handle game state centrally <!-- id: 49 -->
+- [x] Update `app/layout.tsx` with `<GameProvider>` <!-- id: 50 -->
+- [x] Refactor `app/play/page.tsx` into sub-components <!-- id: 51 -->
+    - [x] Create `app/play/components/ProgressBar.tsx` <!-- id: 52 -->
+    - [x] Create `app/play/components/CaseCard.tsx` <!-- id: 53 -->
+    - [x] Create `app/play/components/GuessingPhase.tsx` (with robust input validation) <!-- id: 54 -->
+    - [x] Create `app/play/components/RevealPhase.tsx` <!-- id: 55 -->
+- [x] Update `app/result/page.tsx` to consume GameContext <!-- id: 56 -->
+- [x] Verify application functionality and styling <!-- id: 57 -->
+
 ## Review
 The project "Price of a Life" is fully implemented as a professional Next.js 14 application.
 
@@ -73,4 +86,62 @@ The project "Price of a Life" is fully implemented as a professional Next.js 14 
 5.  **Verification**: Conducted full E2E tests confirming logic accuracy and state persistence.
 6.  **Deployment**: Ready for repository push and public access.
 
+# Task: Bite-Sized Round (Option A)
 
+## Todo
+- [x] Modify `app/page.tsx` (Convert to client, trigger `resetGame` on Begin)
+- [x] Modify `app/play/page.tsx` (Remove `resetGame` on mount, filter `casesData` using `guesses`, slice max 5 cases)
+- [x] Modify `app/result/page.tsx` (Dynamic summary based on `guesses.length`, "Analyze 5 More" conditional button, active "Reset Analysis")
+- [x] Verify Bite-Sized Flow via dev server
+
+# Task: Bureaucratic Noir Aesthetic Implementation
+
+## Todo
+- [x] Update `tailwind.config.ts` (colors `parchment`, `stamp-red`, monospace font)
+- [x] Update `app/layout.tsx` (import `JetBrains_Mono`, update noise overlay)
+- [x] Modify `app/globals.css` (brutalist variables, remove blurs, add redaction animation)
+- [x] Refactor `app/page.tsx` (Classified cover vibe, brutalist buttons)
+- [x] Refactor `app/play/components/*.tsx` (dossier style cards, redaction reveals)
+- [x] Refactor `app/result/page.tsx` (final verdict look, stamp button)
+- [x] Verify full styling and responsiveness locally
+
+# Task: Open Dossier Desktop Layout
+
+## Todo
+- [x] Refactor `app/play/page.tsx` `main` container classes to `max-w-5xl`.
+- [x] Implement `lg:grid-cols-2` side-by-side grid structure.
+- [x] Reconfigure `<CaseCard />` to left column.
+- [x] Reconfigure Phase elements to right column with `.sticky` tracker.
+
+# Task: Performance & UX Audit Overhaul
+
+## Todo
+- [x] Remove external SVG Noise & Live Filters from `globals.css` (Use static B64).
+- [x] Strip unused `Outfit` webfont from `layout.tsx` payload.
+- [x] Implement Dynamic Value Echo (`₹ X,XX,XX,XXX INR`) in `GuessingPhase`.
+- [x] Bind keyboard shortcuts `[L]` (Lakhs) and `[C]` (Crores) to input phase.
+- [x] Force active autofocus on the text input upon component mount.
+
+# Task: The Empty Chair & Audio Interrogation
+
+## Todo
+- [ ] Create `lib/AudioEngine.ts` (Web Audio API soundscape generation).
+- [ ] Create `lib/AudioProvider.tsx` context and wrap `layout.tsx`.
+- [ ] Modify `app/page.tsx` to unlock AudioContext on "Access Archive".
+- [ ] Build `EmptyChairContainer` component logic inside `/play` route intercepting end-of-game.
+- [ ] Build `<IntakeForm />` (brutalist self-input fields).
+- [ ] Create `useActuarialMath` hook for life valuation.
+- [ ] Build `<ProcessingTerminal />` (terminal output sequence).
+- [ ] Build `<PersonalVerdict />` (final redacted reveal of own price).
+- [x] Plumb dynamic audio tension based on guessing accuracy.
+- [x] Verify complete meta-narrative flow and terminal audio context.
+
+# Task: Mobile UX & Responsiveness Polish
+
+## Todo
+- [x] Create implementation plan for small screen breakpoints
+- [x] Adjust `app/page.tsx` padding and typography scaling
+- [x] Modify `CaseCard.tsx` inner grids to wrap properly
+- [x] Update `RevealPhase.tsx` flexbox wrappers to stack amounts
+- [x] Enlarge numerical inputs (`EmptyChair`) and buttons (`GuessingPhase`) for better touch targets
+- [x] Resolve outstanding Next.js lint warnings

@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --background: #000000;
-  --foreground: #ffffff;
+  --background: #050505;
+  --foreground: #e8e4d9;
 }
 
 body {
@@ -13,10 +13,10 @@ body {
   cursor: crosshair;
 }
 
-/* Noise Texture Overlay */
+/* Document Noise Overlay */
 .noise-bg {
-  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
-  filter: contrast(120%) brightness(120%);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  /* Filters removed for performance. Opacity handled by Tailwind classes in layout.tsx */
 }
 
 /* Premium Animations */
@@ -32,15 +32,43 @@ body {
 }
 
 .animate-reveal {
-  animation: reveal 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Glassmorphism card */
-.glass-card {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+@keyframes redact-peel {
+  0% {
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 100%);
+  }
+}
+
+/* Redaction reveal block effect */
+.animate-unredact {
+  position: relative;
+  display: inline-block;
+  color: #050505;
+  background-color: var(--foreground);
+  padding: 0 4px;
+}
+.animate-unredact::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background-color: #050505;
+  animation: redact-peel 1.2s cubic-bezier(0.85, 0, 0.15, 1) forwards;
+  animation-delay: 0.5s;
+  pointer-events: none;
+}
+
+/* Brutalist card */
+.dossier-card {
+  background: transparent;
+  border: 2px solid var(--foreground);
 }
 
 /* Smooth Scrolling */
@@ -50,6 +78,6 @@ html {
 
 /* Custom Selection */
 ::selection {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: var(--foreground);
+  color: #000;
 }

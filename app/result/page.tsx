@@ -1,103 +1,109 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { GuessRecord, PatternResult } from '@/types'
+import { PatternResult } from '@/types'
 import { getPattern } from '@/lib/patternEngine'
+import { useGame } from '@/lib/GameContext'
+import casesData from '@/data/cases.json'
 
 export default function ResultPage() {
-  const router = useRouter()
-  const [guesses, setGuesses] = useState<GuessRecord[] | null>(null)
+  const { guesses, isInitialized, resetGame } = useGame()
   const [pattern, setPattern] = useState<PatternResult | null>(null)
-  const [loading, setLoading] = useState(true)
   const [copying, setCopying] = useState(false)
 
   useEffect(() => {
-    const stored = sessionStorage.getItem('guesses')
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as GuessRecord[]
-        setGuesses(parsed)
-        setPattern(getPattern(parsed))
-      } catch (err) {
-        console.error('Failed to parse guesses', err)
-      }
+    if (guesses && guesses.length > 0) {
+      setPattern(getPattern(guesses))
     }
-    setLoading(false)
-  }, [])
+  }, [guesses])
 
   const handleCopy = () => {
     if (!pattern) return
-    const text = `${pattern.biasLine}\n${pattern.agreementLine}`
+    const text = `TRIBUNAL ANALYSIS V-01\nSTATUS: CLASSIFIED\nCLASSIFICATION: ${pattern.biasLine}\nSUMMARY: ${pattern.agreementLine}`
     navigator.clipboard.writeText(text).then(() => {
       setCopying(true)
       setTimeout(() => setCopying(false), 2000)
     })
   }
 
-  if (loading || !guesses || !pattern) {
+  // If Context hasn't loaded state from session storage yet
+  if (!isInitialized) {
     return (
-      <main className="min-h-screen bg-black flex items-center justify-center">
-        <div className="w-12 h-[1px] bg-white/20 animate-pulse"></div>
+      <main className="min-h-screen bg-[#050505] flex items-center justify-center">
+        <div className="w-12 h-1 bg-parchment animate-pulse"></div>
       </main>
     )
   }
 
-  if (guesses.length === 0) {
+  if (guesses.length === 0 || !pattern) {
     return (
-      <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6 text-center">
-        <h2 className="text-xl font-serif italic mb-8">No session found</h2>
+      <main className="min-h-screen bg-[#050505] text-parchment flex flex-col items-center justify-center px-6 text-center">
+        <h2 className="text-xl font-mono mb-8 border border-stamp-red text-stamp-red p-4 inline-block transform -rotate-2 font-bold tracking-widest">NO SESSION DETECTED</h2>
         <Link 
           href="/" 
-          className="text-xs uppercase tracking-widest text-gray-400 hover:text-white transition-colors"
+          onClick={() => resetGame()}
+          className="text-xs uppercase tracking-widest font-mono text-parchment/60 hover:text-parchment transition-colors underline decoration-parchment/30 underline-offset-4"
         >
-          Return Home
+          Return to Terminal
         </Link>
       </main>
     )
   }
 
   return (
-    <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6 md:px-12 relative overflow-hidden">
-      {/* Background atmospheric glow */}
-      <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-full max-w-2xl h-[40%] bg-white/[0.02] rounded-full blur-[120px]"></div>
+    <main className="min-h-screen bg-[#050505] text-parchment flex flex-col items-center justify-center px-4 md:px-12 relative">
+      <div className="w-full max-w-3xl border-4 border-parchment p-6 md:p-16 relative bg-[#050505] z-10 animate-reveal">
+        
+        {/* Paper corners */}
+        <div className="absolute top-0 left-0 w-8 h-8 border-r-2 border-b-2 border-parchment bg-[#050505]"></div>
+        <div className="absolute bottom-4 right-4 w-12 h-12 border-2 border-dashed border-stamp-red rounded-full opacity-30 pointer-events-none flex items-center justify-center -rotate-12"><span className="text-[6px] font-mono font-bold text-stamp-red">FILE CLOSED</span></div>
 
-      <div className="w-full max-w-2xl text-center space-y-12 relative z-10 animate-reveal">
-        <div className="space-y-4">
-          <p className="text-[10px] text-gray-500 uppercase tracking-[0.4em]">Structural Analysis Completed</p>
-          <div className="w-12 h-px bg-white/20 mx-auto"></div>
+        <div className="space-y-4 mb-12 border-b-2 border-parchment/60 pb-6">
+          <p className="font-mono text-xs text-parchment/60 uppercase tracking-[0.4em]">Final Actuarial Analysis</p>
+          <div className="w-full h-px bg-parchment/30"></div>
         </div>
 
-        <div className="space-y-8">
-          <h1 className="text-4xl md:text-5xl font-serif italic leading-tight text-white tracking-tight">
+        <div className="space-y-8 mb-16">
+          <h1 className="text-3xl md:text-5xl font-serif italic font-bold leading-tight uppercase tracking-tight">
             {pattern.biasLine}
           </h1>
-          <p className="text-lg md:text-xl text-gray-400 font-light leading-relaxed max-w-xl mx-auto">
-            {pattern.agreementLine}
-          </p>
+          <div className="bg-parchment/5 border-l-4 border-stamp-red p-6">
+            <p className="font-mono text-sm md:text-base text-parchment font-light leading-relaxed">
+              {pattern.agreementLine}
+            </p>
+          </div>
         </div>
 
-        <div className="pt-12 flex flex-col items-center gap-6">
+        <div className="pt-8 flex flex-col items-center gap-6 border-t-2 border-parchment/60 mt-8">
           <button
             onClick={handleCopy}
-            className="group relative flex h-14 items-center justify-center border border-white/10 px-12 text-xs uppercase tracking-[0.3em] font-medium transition-all duration-300 hover:border-white hover:bg-white hover:text-black overflow-hidden"
+            className={`flex h-14 items-center justify-center border-2 px-12 font-mono text-sm uppercase tracking-[0.3em] font-bold transition-all duration-300 ${copying ? 'border-stamp-red text-stamp-red bg-stamp-red/10' : 'border-parchment text-parchment hover:bg-parchment hover:text-[#050505]'}`}
           >
-            <span className="relative z-10">{copying ? 'Results Copied' : 'Preserve Report'}</span>
-            <div className="absolute inset-0 bg-white translate-y-[100%] transition-transform duration-300 group-hover:translate-y-0"></div>
+            {copying ? '[COPIED TO CLIPBOARD]' : 'DECLASSIFY & EXPORT'}
           </button>
+
+          {guesses.length < casesData.length && (
+            <Link 
+              href="/play" 
+              className="font-mono text-[10px] uppercase tracking-[0.2em] text-parchment border border-parchment/50 hover:bg-parchment hover:text-[#050505] transition-colors px-6 py-3 font-bold"
+            >
+              Analyze {Math.min(5, casesData.length - guesses.length)} More Cases
+            </Link>
+          )}
 
           <Link 
             href="/" 
-            className="text-[10px] uppercase tracking-[0.2em] text-gray-600 hover:text-white transition-colors"
+            onClick={() => resetGame()}
+            className="font-mono text-[11px] uppercase tracking-[0.2em] text-parchment/50 hover:text-stamp-red hover:underline decoration-stamp-red transition-all mt-4"
           >
-            Reset Analysis
+            Destroy Records & Restart
           </Link>
         </div>
       </div>
 
-      <div className="absolute bottom-12 text-[9px] text-gray-700 tracking-[0.5em] uppercase">
-        Judicial Bias Factor / Series 01
+      <div className="mt-8 font-mono text-[10px] text-parchment/30 tracking-[0.4em] uppercase">
+        END OF TRANSMISSION
       </div>
     </main>
   )
