@@ -1,3 +1,6 @@
+'use client'
+
+import { useEffect, useRef } from 'react'
 import { Case, GuessRecord } from '@/types'
 import { formatINR } from '@/lib/currencyUtils'
 
@@ -12,9 +15,17 @@ export function RevealPhase({
   onNext: () => void,
   isLast: boolean
 }) {
-  
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    // Only scroll smoothly into view if on mobile/tablet (vertically stacked layout)
+    if (window.innerWidth < 1024 && containerRef.current) {
+      containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [])
+
   return (
-    <div className="space-y-10 animate-reveal border-2 border-parchment p-6 bg-[#050505]">
+    <div ref={containerRef} className="space-y-10 animate-reveal border-2 border-parchment p-6 bg-[#050505]">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 sm:gap-0 border-b-2 border-dashed border-parchment/60 pb-8">
         <div className="text-left">
           <p className="font-mono text-[10px] text-parchment/50 uppercase tracking-widest mb-2">Submitted Appraisal</p>
