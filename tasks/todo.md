@@ -125,14 +125,14 @@ The project "Price of a Life" is fully implemented as a professional Next.js 14 
 # Task: The Empty Chair & Audio Interrogation
 
 ## Todo
-- [ ] Create `lib/AudioEngine.ts` (Web Audio API soundscape generation).
-- [ ] Create `lib/AudioProvider.tsx` context and wrap `layout.tsx`.
-- [ ] Modify `app/page.tsx` to unlock AudioContext on "Access Archive".
-- [ ] Build `EmptyChairContainer` component logic inside `/play` route intercepting end-of-game.
-- [ ] Build `<IntakeForm />` (brutalist self-input fields).
-- [ ] Create `useActuarialMath` hook for life valuation.
-- [ ] Build `<ProcessingTerminal />` (terminal output sequence).
-- [ ] Build `<PersonalVerdict />` (final redacted reveal of own price).
+- [x] Create `lib/AudioEngine.ts` (Web Audio API soundscape generation).
+- [x] Create `lib/AudioProvider.tsx` context and wrap `layout.tsx`.
+- [x] Modify `app/page.tsx` to unlock AudioContext on "Access Archive".
+- [x] Build `EmptyChairContainer` component logic inside `/play` route intercepting end-of-game.
+- [x] Build `<IntakeForm />` (brutalist self-input fields).
+- [x] Create `useActuarialMath` hook for life valuation.
+- [x] Build `<ProcessingTerminal />` (terminal output sequence).
+- [x] Build `<PersonalVerdict />` (final redacted reveal of own price).
 - [x] Plumb dynamic audio tension based on guessing accuracy.
 - [x] Verify complete meta-narrative flow and terminal audio context.
 
@@ -145,3 +145,12 @@ The project "Price of a Life" is fully implemented as a professional Next.js 14 
 - [x] Update `RevealPhase.tsx` flexbox wrappers to stack amounts
 - [x] Enlarge numerical inputs (`EmptyChair`) and buttons (`GuessingPhase`) for better touch targets
 - [x] Resolve outstanding Next.js lint warnings
+
+# Task: Cleanup & Documentation
+
+## Todo
+- [x] Audit codebase for stray `console.log` calls (none found — only legitimate error handlers)
+- [x] Run linter (`next lint`) — zero warnings/errors
+- [x] Update `README.md` to reflect current features and aesthetic
+- [x] Check off completed tasks in `todo.md`
+- [x] Commit and push

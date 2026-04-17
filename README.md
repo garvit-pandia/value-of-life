@@ -1,25 +1,29 @@
-# Value of Life (v2)
+# The Price of a Life
 
 An interactive, research-driven experience exploring the systemic biases in how legal systems assign monetary value to human lives.
 
 ## Overview
 
-"Value of Life" is a professional Next.js 14 application that challenges users to estimate the legal settlements of actual wrongful death court cases. By comparing user guesses with real-world judicial verdicts, the application reveals underlying patterns and disparities in human valuation based on demographics like age, occupation, and gender.
+"The Price of a Life" is a Next.js application built in the **Bureaucratic Noir** aesthetic — cold, institutional, and deliberately uncomfortable. It challenges users to estimate the legal settlements of actual wrongful death court cases. By comparing user guesses with real-world judicial verdicts, the application reveals underlying patterns and disparities in human valuation.
 
 ## Key Features
 
-- **Interactive Case Analysis**: Review real-world legal cases with detailed backgrounds.
-- **Instinct vs. Verdict**: Estimate payouts and instantly compare them with court-ordered settlements.
-- **Pattern Recognition**: A core engine analyzes your guessing pattern to identify systemic overestimation or underestimation.
-- **Demographic Bias Detection**: Discover which demographic groups you agree with most closely in terms of valuation.
-- **Premium Aesthetics**: A minimalist, high-contrast design using glassmorphism and fluid animations.
+- **Bite-Sized Rounds**: Play in rounds of 5 cases at a time. Return to analyze more from the archive whenever you want.
+- **Open Dossier Layout**: A two-column desktop layout keeps case details visible alongside the appraisal form — no scrolling required.
+- **Instinct vs. Tribunal**: Estimate payouts in Lakhs/Crores and instantly compare them with actual court-ordered settlements.
+- **Pattern Recognition Engine**: Analyzes your guessing patterns to identify systemic overestimation or underestimation biases.
+- **The Empty Chair (Meta-Game)**: After evaluating others, the system turns the lens on *you* — a mandatory self-appraisal that calculates your own actuarial value.
+- **Generative Audio Soundscape**: A Web Audio API–driven ambient interrogation hum that dynamically intensifies based on your guessing accuracy.
+- **Mobile-First Responsive Design**: Fully usable on smartphones with properly sized touch targets, stacking layouts, and scaled typography.
+- **Bureaucratic Noir Aesthetic**: Parchment-on-black dossier styling, stamp-red accents, redaction animations, and CRT noise overlays.
 
 ## Tech Stack
 
-- **Framework**: Next.js 15.2.1 (App Router)
-- **Styling**: Tailwind CSS 3.4
+- **Framework**: Next.js 15 (App Router)
+- **Styling**: Tailwind CSS
 - **Language**: TypeScript
-- **State Management**: React Hooks & Session Storage
+- **State Management**: React Context + Session Storage
+- **Audio**: Web Audio API (generative soundscape)
 
 ## Getting Started
 
