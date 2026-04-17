@@ -45,9 +45,16 @@ export function EmptyChair({ onComplete }: { onComplete: () => void }) {
     <div className="dossier-card p-6 md:p-8 relative min-h-[400px] flex flex-col justify-center">
       {phase === 'intake' && (
         <form onSubmit={handleFormSubmit} className="space-y-6 animate-reveal">
-          <div className="border-b-2 border-stamp-red pb-4 mb-6">
-            <h2 className="text-2xl text-stamp-red font-serif font-bold uppercase tracking-widest">
-              Mandatory Self-Appraisal
+          <div className="border-b-2 border-stamp-red pb-4 mb-6 relative">
+            <button 
+              type="button" 
+              onClick={onComplete}
+              className="absolute top-0 right-0 font-mono text-[10px] text-parchment/40 uppercase hover:text-stamp-red transition-colors border border-transparent hover:border-stamp-red/30 px-2 py-1"
+            >
+              [ SKIP ]
+            </button>
+            <h2 className="text-2xl text-stamp-red font-serif font-bold uppercase tracking-widest pr-16">
+              Self Appraisal
             </h2>
             <p className="font-mono text-[10px] text-parchment/60 uppercase mt-2">
               File: [YOUR NAME HERE] — To complete external analysis, provide internal baselines.
@@ -71,6 +78,14 @@ export function EmptyChair({ onComplete }: { onComplete: () => void }) {
 
           <button type="submit" className="w-full py-4 mt-8 bg-stamp-red text-[#050505] font-mono font-bold uppercase tracking-[0.3em] hover:bg-parchment transition-colors">
             Calculate Net Human Yield
+          </button>
+          
+          <button 
+            type="button" 
+            onClick={onComplete}
+            className="w-full py-3 mt-2 text-center text-parchment/50 text-[10px] uppercase font-mono tracking-widest hover:text-parchment transition-colors"
+          >
+            Refuse Appraisal (Skip) &rarr;
           </button>
         </form>
       )}

@@ -86,9 +86,9 @@ export default function ResultPage() {
           {guesses.length < casesData.length && (
             <Link 
               href="/play" 
-              className="font-mono text-[10px] uppercase tracking-[0.2em] text-parchment border border-parchment/50 hover:bg-parchment hover:text-[#050505] transition-colors px-6 py-3 font-bold"
+              className="w-full flex items-center justify-center text-center font-mono text-base md:text-lg uppercase tracking-[0.2em] text-parchment border-2 border-parchment hover:bg-parchment hover:text-[#050505] transition-colors px-12 py-6 font-bold"
             >
-              Analyze {Math.min(5, casesData.length - guesses.length)} More Cases
+              Analyze {Math.min(5, casesData.length - guesses.length)} More Cases &rarr;
             </Link>
           )}
 
