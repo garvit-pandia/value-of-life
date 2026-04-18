@@ -81,3 +81,36 @@ html {
   background: var(--foreground);
   color: #000;
 }
+
+/* CRT Scanline Effect */
+@keyframes crt-scanline {
+  0% { transform: translateY(-100vh); }
+  100% { transform: translateY(100vh); }
+}
+
+.crt-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  mix-blend-mode: overlay;
+  background: linear-gradient(
+    to bottom,
+    transparent 50%,
+    rgba(232, 228, 217, 0.1) 51%,
+    transparent 52%
+  );
+  background-size: 100% 10px;
+  animation: crt-scanline 8s linear infinite;
+}
+
+/* Fast Violence Mount */
+@keyframes violent-mount {
+  0% { opacity: 0; transform: scale(0.95) skewX(5deg); filter: blur(4px); }
+  50% { opacity: 1; transform: scale(1.02) skewX(-2deg); filter: blur(0px); }
+  100% { opacity: 1; transform: scale(1) skewX(0); filter: blur(0px); }
+}
+
+.animate-violent-mount {
+  animation: violent-mount 0.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
