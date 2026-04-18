@@ -14,7 +14,7 @@ An interactive, research-driven experience exploring the systemic biases in how 
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/garvit-pandia/value-of-life-v2.git
+   git clone https://github.com/garvit-pandia/value-of-life.git
    ```
 
 2. **Install dependencies**:
